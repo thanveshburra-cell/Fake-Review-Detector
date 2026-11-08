@@ -1,0 +1,21 @@
+# Virtual environment
+test/
+venv/
+env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large dataset files (GitHub 100MB limit)
+data/
+*.csv
+
+# Model binaries (keep repo lightweight)
+models/*.pkl
+
+# Evaluation plots and local logs
+*.png
+.vscode/
+.idea/
