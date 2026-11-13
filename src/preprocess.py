@@ -1,15 +1,14 @@
 import re
 
 def normalize_text(text: str) -> str:
-    if not isinstance(text, str):
+    if text is None:
         return ""
-    text = text.lower()
+    text = str(text).lower()
     text = re.sub(r'<.*?>', ' ', text)
     text = re.sub(r'http\S+|www\S+', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def parse_labels(series):
-    # CG: Computer Generated (Fake) = 1, OR: Original (Real) = 0
+def parse_labels(labels):
     mapping = {'CG': 1, 'OR': 0}
-    return series.map(mapping)
+    return [mapping.get(str(lbl).strip(), None) for lbl in labels]

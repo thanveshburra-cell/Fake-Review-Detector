@@ -1,21 +1,20 @@
 # Virtual environment
 test/
 venv/
-env/
 
-# Python bytecode
+# Python cache
 __pycache__/
 *.py[cod]
-*$py.class
 
-# Large dataset files (GitHub 100MB limit)
+# Dataset (keep ignored)
 data/
 *.csv
 
-# Model binaries (keep repo lightweight)
-models/*.pkl
+# Allow models to be committed
+!models/
+!models/*.pkl
 
-# Evaluation plots and local logs
+# Ignore temporary and test cache
+models/test_data.pkl
 *.png
 .vscode/
-.idea/

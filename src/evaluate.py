@@ -1,37 +1,41 @@
 import joblib
+import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score, classification_report, confusion_matrix
 from src.config import MODEL_SAVE_PATH
 
 def evaluate_model():
     ensemble = joblib.load(MODEL_SAVE_PATH)
     X_te, y_test = joblib.load(MODEL_SAVE_PATH.parent / "test_data.pkl")
-    
-    print("\n================ EVALUATION METRICS ================")
+
     y_pred = ensemble.predict(X_te)
     y_prob = ensemble.predict_proba(X_te)[:, 1]
-    
-    acc = accuracy_score(y_test, y_pred)
-    roc = roc_auc_score(y_test, y_prob)
-    
+
+    print("\n================ EVALUATION METRICS ================")
     print(f"Target Accuracy        : >= 95.00%")
-    print(f"Achieved Test Accuracy : {acc * 100:.2f}%")
-    print(f"ROC-AUC Score          : {roc:.4f}\n")
-    
+    print(f"Achieved Test Accuracy : {accuracy_score(y_test, y_pred) * 100:.2f}%")
+    print(f"ROC-AUC Score          : {roc_auc_score(y_test, y_prob):.4f}\n")
     print("Classification Report:")
-    print(classification_report(y_test, y_pred, target_names=["Genuine (OR)", "Fake (CG)"], digits=4))
-    
+    print(classification_report(y_test, y_pred, target_names=['Genuine (OR)', 'Fake (CG)'], digits=4))
+
     cm = confusion_matrix(y_test, y_pred)
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                xticklabels=["OR (Real)", "CG (Fake)"],
-                yticklabels=["OR (Real)", "CG (Fake)"])
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title(f"Confusion Matrix (Accuracy: {acc * 100:.2f}%)")
+    fig, ax = plt.subplots(figsize=(6, 5))
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+    classes = ['Genuine (OR)', 'Fake (CG)']
+    ax.set(xticks=np.arange(cm.shape[1]), yticks=np.arange(cm.shape[0]),
+           xticklabels=classes, yticklabels=classes,
+           title='Confusion Matrix', ylabel='Actual', xlabel='Predicted')
+
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j], 'd'), ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+
     plt.tight_layout()
-    plt.savefig("confusion_matrix.png")
+    plt.savefig('confusion_matrix.png')
+    plt.close()
     print("Confusion matrix saved as 'confusion_matrix.png'")
 
 if __name__ == "__main__":
